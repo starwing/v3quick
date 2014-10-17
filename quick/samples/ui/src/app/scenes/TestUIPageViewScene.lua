@@ -48,12 +48,15 @@ end
 
 function TestUIPageViewScene:touchListener(event)
     dump(event, "TestUIPageViewScene - event:")
-    local listView = event.listView
-    if 3 == event.itemPos then
-        listView:removeItem(event.item, true)
-    else
-        -- event.item:setItemSize(120, 80)
+    local pageView = event.pageView
+    if "clicked" == event.name then
+        pageView:removeItem(event.item)
     end
+    -- if 3 == event.itemIdx then
+    --     pageView:removeItem(event.item)
+    -- else
+    --     -- event.item:setItemSize(120, 80)
+    -- end
 end
 
 return TestUIPageViewScene
