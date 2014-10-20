@@ -89,7 +89,7 @@ public class QuickHTTPInterface {
             if (bNeedConnectSym) {
                 content = "&" + content;
             }
-            out.writeBytes(content);
+            out.write(content.getBytes());
             out.flush();
         } catch (IOException e) {
             Log.e("QuickHTTPInterface", e.toString());
