@@ -76,7 +76,7 @@ function UILoaderUtilitys.clearPath(fileUtil)
 		table.remove(UILoaderUtilitys.searchDirs, i)
 	end
 
-	paths = table.unique(paths)
+	paths = table.unique(paths, true)
 
 	fileUtil:setSearchPaths(paths)
 end
