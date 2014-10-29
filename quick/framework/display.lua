@@ -468,6 +468,9 @@ function display.newColorLayer(color)
     node:setTouchEnabled(true)
     node:setTouchSwallowEnabled(true)
 
+    node.setContentSize = layer.setContentSize
+    node.getContentSize = layer.getContentSize
+
     return node
 end
 
