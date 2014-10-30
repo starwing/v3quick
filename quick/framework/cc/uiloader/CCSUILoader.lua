@@ -1046,7 +1046,7 @@ function CCSUILoader:calcChildPosByName_(children, name, parentSize)
 	local x, y
 	local bUseOrigin = false
 	local width = options.width * (options.scaleX or 1) * (options.adaptScaleX_ or 1)
-	local height = options.height * (options.scaleY or 1) * (options.adaptScaleX_ or 1)
+	local height = options.height * (options.scaleY or 1) * (options.adaptScaleY_ or 1)
 
 	layoutParameter = options.layoutParameter
 
