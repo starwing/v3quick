@@ -31,10 +31,10 @@ static void tolua_reg_types (lua_State* tolua_S)
  tolua_usertype(tolua_S,"cc.Ref");
  tolua_usertype(tolua_S,"Network");
  tolua_usertype(tolua_S,"Crypto");
- 
+
  tolua_usertype(tolua_S,"Native");
  tolua_usertype(tolua_S,"HTTPRequest");
- 
+
 }
 
 /* method: getAES256KeyLength of class  Crypto */
@@ -89,7 +89,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_encryptAES25600(lua_State* tol
   int keyLength = ((int)  tolua_tonumber(tolua_S,5,0));
   {
      Crypto::encryptAES256Lua(plaintext,plaintextLength,key,keyLength);
-   
+
   }
  }
  return 1;
@@ -125,7 +125,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_decryptAES25600(lua_State* tol
   int keyLength = ((int)  tolua_tonumber(tolua_S,5,0));
   {
      Crypto::decryptAES256Lua(ciphertext,ciphertextLength,key,keyLength);
-   
+
   }
  }
  return 1;
@@ -161,7 +161,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_encryptXXTEA00(lua_State* tolu
   int keyLength = ((int)  tolua_tonumber(tolua_S,5,0));
   {
      Crypto::encryptXXTEALua(plaintext,plaintextLength,key,keyLength);
-   
+
   }
  }
  return 1;
@@ -197,7 +197,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_decryptXXTEA00(lua_State* tolu
   int keyLength = ((int)  tolua_tonumber(tolua_S,5,0));
   {
      Crypto::decryptXXTEALua(ciphertext,ciphertextLength,key,keyLength);
-   
+
   }
  }
  return 1;
@@ -229,7 +229,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_encodeBase6400(lua_State* tolu
   int inputLength = ((int)  tolua_tonumber(tolua_S,3,0));
   {
      Crypto::encodeBase64Lua(input,inputLength);
-   
+
   }
  }
  return 1;
@@ -259,7 +259,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_decodeBase6400(lua_State* tolu
   const char* input = ((const char*)  tolua_tostring(tolua_S,2,0));
   {
      Crypto::decodeBase64Lua(input);
-   
+
   }
  }
  return 1;
@@ -291,7 +291,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_MD500(lua_State* tolua_S)
   bool isRawOutput = ((bool)  tolua_toboolean(tolua_S,3,0));
   {
      Crypto::MD5Lua(input,isRawOutput);
-   
+
   }
  }
  return 1;
@@ -321,7 +321,7 @@ static int tolua_cocos2dx_extra_luabinding_Crypto_MD5File00(lua_State* tolua_S)
   const char* path = ((const char*)  tolua_tostring(tolua_S,2,0));
   {
      Crypto::MD5FileLua(path);
-   
+
   }
  }
  return 1;
@@ -1266,7 +1266,7 @@ static int tolua_cocos2dx_extra_luabinding_HTTPRequest_getResponseData00(lua_Sta
 #endif
   {
      self->getResponseDataLua();
-   
+
   }
  }
  return 1;
@@ -1575,7 +1575,6 @@ TOLUA_API int tolua_cocos2dx_extra_luabinding_open (lua_State* tolua_S)
    tolua_function(tolua_S,"MD5",tolua_cocos2dx_extra_luabinding_Crypto_MD500);
    tolua_function(tolua_S,"MD5File",tolua_cocos2dx_extra_luabinding_Crypto_MD5File00);
   tolua_endmodule(tolua_S);
-#if CC_TARGET_PLATFORM != CC_PLATFORM_WIN32
   tolua_cclass(tolua_S,"Native","Native","",NULL);
   tolua_beginmodule(tolua_S,"Native");
    tolua_function(tolua_S,"showActivityIndicator",tolua_cocos2dx_extra_luabinding_Native_showActivityIndicator00);
@@ -1590,7 +1589,6 @@ TOLUA_API int tolua_cocos2dx_extra_luabinding_open (lua_State* tolua_S)
    tolua_function(tolua_S,"getDeviceName",tolua_cocos2dx_extra_luabinding_Native_getDeviceName00);
    tolua_function(tolua_S,"vibrate",tolua_cocos2dx_extra_luabinding_Native_vibrate00);
   tolua_endmodule(tolua_S);
-#endif
   tolua_constant(tolua_S,"kCCHTTPRequestMethodGET",kCCHTTPRequestMethodGET);
   tolua_constant(tolua_S,"kCCHTTPRequestMethodPOST",kCCHTTPRequestMethodPOST);
   tolua_constant(tolua_S,"kCCHTTPRequestAcceptEncodingIdentity",kCCHTTPRequestAcceptEncodingIdentity);
