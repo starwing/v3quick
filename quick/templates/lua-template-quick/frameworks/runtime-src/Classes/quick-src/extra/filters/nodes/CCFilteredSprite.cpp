@@ -151,28 +151,29 @@ FilteredSpriteWithOne* FilteredSpriteWithOne::createWithSpriteFrame(SpriteFrame*
 	FilteredSpriteWithOne *pobSprite = new FilteredSpriteWithOne();
 	if ($pSpriteFrame && pobSprite)
 	{
-		if ($pSpriteFrame->isRotated())
-		{
-			Sprite* __sp = Sprite::createWithSpriteFrame($pSpriteFrame);
-			Size __size = __sp->getContentSize();
-			__sp->setAnchorPoint(Vec2(0,0));
-			__sp->setPosition(Vec2(0,0));
-			RenderTexture* __rTex = RenderTexture::create(__size.width, __size.height);
-			__rTex->begin();
-			__sp->visit();
-			__rTex->end();
-			Texture2D* __newTex = new Texture2D();
-            Image *pNewImage = __rTex->newImage(true);
-			__newTex->initWithImage(pNewImage);
-            delete pNewImage;
-			__newTex->autorelease();
-			pobSprite->initWithTexture(__newTex);
-			//CCLOG("==== FilteredSprite::initWithTexture, rotated true texture wh(%f,%f)", __newTex->getContentSize().width, __newTex->getContentSize().height);
-		}
-		else
-		{
-			pobSprite->initWithSpriteFrame($pSpriteFrame);
-		}
+//		if ($pSpriteFrame->isRotated())
+//		{
+//			Sprite* __sp = Sprite::createWithSpriteFrame($pSpriteFrame);
+//			Size __size = __sp->getContentSize();
+//			__sp->setAnchorPoint(Vec2(0,0));
+//			__sp->setPosition(Vec2(0,0));
+//			RenderTexture* __rTex = RenderTexture::create(__size.width, __size.height);
+//			__rTex->begin();
+//			__sp->visit();
+//			__rTex->end();
+//			Texture2D* __newTex = new Texture2D();
+//            Image *pNewImage = __rTex->newImage(true);
+//			__newTex->initWithImage(pNewImage);
+//            delete pNewImage;
+//			__newTex->autorelease();
+//			pobSprite->initWithTexture(__newTex);
+//			//CCLOG("==== FilteredSprite::initWithTexture, rotated true texture wh(%f,%f)", __newTex->getContentSize().width, __newTex->getContentSize().height);
+//		}
+//		else
+//		{
+//			pobSprite->initWithSpriteFrame($pSpriteFrame);
+//		}
+        pobSprite->initWithSpriteFrame($pSpriteFrame);
 		pobSprite->autorelease();
 		return pobSprite;
 	}
