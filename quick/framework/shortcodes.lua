@@ -37,19 +37,13 @@ local Node = c.Node
 
 @param node child 要加入的结点
 @param number zorder 要加入结点的Z值
-@param number tag 要加入结点的tag
+@param mixed tag 要加入结点的tag或name
 
 @return Node 当前结点
 
 ]]
 function Node:add(child, zorder, tag)
-    if "number" == type(tag) then
-        self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getTag())
-    elseif "string" == type(tag) then
-        self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getName())
-    else
-        self:addChild(child, zorder or child:getLocalZOrder())
-    end
+    self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getTag())
 
     return self
 end
@@ -60,19 +54,14 @@ end
 
 @param node target 想作为其子结点的结点
 @param number zorder 当前结点的Z值
-@param number tag 当前结点的tag
+@param mixed tag 当前结点的tag或name
 
 @return Node 当前结点
 
 ]]
 function Node:addTo(target, zorder, tag)
-    if "number" == type(tag) then
-        target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getTag())
-    elseif "string" == type(tag) then
-        target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getName())
-    else
-        target:addChild(self, zorder or self:getLocalZOrder())
-    end
+    target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getTag())
+
     return self
 end
 
