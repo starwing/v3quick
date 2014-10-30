@@ -218,6 +218,8 @@ class ProjectCreator
         // }
 
         $this->modifyFiles();
+        $this->fixFiles();
+        $this->replaceFiles();
 
         print("\n\n");
 
@@ -353,4 +355,92 @@ class ProjectCreator
             printf("OK\n");
         }
     }
+
+    private function fixFiles()
+    {
+        $cocosPath = $this->config['output'] . 'frameworks/cocos2d-x';
+        $files = $this->config['extrawork']["FilesNeedModify"];
+        foreach ($files as $file) 
+        {
+            $src = $cocosPath . $file[0];
+            printf("fix file \"%s\" ... ", $src);
+            $contents = file_get_contents($src);
+            if ($contents == false)
+            {
+                printf("ERROR: file_get_contents failure\n");
+                continue;
+            }
+            // $stat = stat($src);
+
+            $contents = str_replace($file[1], $file[2], $contents);
+
+            if (file_put_contents($src, $contents) == false)
+            {
+                printf("ERROR: file_put_contents failure\n");
+                continue;
+            }
+            // chmod($dest, $stat['mode']);
+
+            printf("OK\n");
+        }
+
+        return true;
+    }
+
+    private function replaceFiles()
+    {
+        $quickPath = $_ENV['QUICK_V3_ROOT'];
+        $cocosPath = $this->config['output'] . 'frameworks/cocos2d-x';
+        $files = $this->config['extrawork']["FilesNeedReplace"];
+        foreach ($files as $file) 
+        {
+            $src = $quickPath . "/quick/lib/hotfix/" . $file[0];
+            $dst = $cocosPath . $file[1];
+            $this->replaceFile($src, $dst);
+
+            printf("OK\n");
+        }
+
+        return true;
+    }
+
+    private function replaceFile($src, $dest)
+    {
+        printf("replace file \"%s\" ... ", $dest);
+        $destinationDir = pathinfo($dest, PATHINFO_DIRNAME);
+
+        if (!is_dir($destinationDir))
+        {
+            mkdir($destinationDir, 0777, true);
+        }
+        if (!is_dir($destinationDir))
+        {
+            printf("ERROR: mkdir failure\n");
+            return false;
+        }
+
+        $contents = file_get_contents($src);
+        if ($contents == false)
+        {
+            printf("ERROR: file_get_contents failure\n");
+            return false;
+        }
+        $stat = stat($src);
+
+        // foreach ($this->vars as $key => $value)
+        // {
+        //     $contents = str_replace($key, $value, $contents);
+        // }
+
+        if (file_put_contents($dest, $contents) == false)
+        {
+            printf("ERROR: file_put_contents failure\n");
+            return false;
+        }
+        chmod($dest, $stat['mode']);
+
+        printf("OK\n");
+        return true;
+    }
+
 }

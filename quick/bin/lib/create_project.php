@@ -16,6 +16,47 @@ $options = array(
     array('e',   'extracmd',    1,      null,        'extra cmd for cocos'),
 );
 
+$extrawork = array(
+    "FilesNeedModify" => array(
+            array(
+                "/cocos/platform/win32/CCFileUtils-win32.cpp",
+                's_resourcePath.append("/");',
+                's_resourcePath.append("/../../");',
+                ),
+            array(
+                "/external/lua/quick/LuaEventNode.h",
+                "class CC_DLL LuaEventNode",
+                "class LuaEventNode",
+                ),
+            array(
+                "/external/lua/quick/LuaNodeManager.h",
+                "class CC_DLL LuaNodeManager",
+                "class LuaNodeManager",
+                ),
+            array(
+                "/external/lua/quick/LuaTouchEventManager.h",
+                "class CC_DLL LuaTouchEventManager",
+                "class LuaTouchEventManager",
+                ),
+            array(
+                "/external/lua/quick/LuaTouchTargetNode.h",
+                "class CC_DLL LuaTouchTargetNode",
+                "class LuaTouchTargetNode",
+                ),
+        ),
+
+    "FilesNeedReplace" => array(
+            array(
+                'cocos2d.cpp',
+                "/cocos/cocos2d.cpp",
+                ),
+            array(
+                "LuaEventNode.cpp",
+                "/external/lua/quick/LuaEventNode.cpp",
+                ),
+        ),
+);
+
 function errorhelp()
 {
     print("\nshow help:\n    create_project -h\n\n");
@@ -115,6 +156,7 @@ if ($config['config'])
     }
 }
 
+$config['extrawork'] = $extrawork;
 $creator = new ProjectCreator($config, $options);
 if ($creator->validateConfig())
 {
