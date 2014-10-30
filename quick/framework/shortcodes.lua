@@ -43,7 +43,14 @@ local Node = c.Node
 
 ]]
 function Node:add(child, zorder, tag)
-    self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getTag())
+    if "number" == type(tag) then
+        self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getTag())
+    elseif "string" == type(tag) then
+        self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getName())
+    else
+        self:addChild(child, zorder or child:getLocalZOrder())
+    end
+
     return self
 end
 
@@ -59,7 +66,13 @@ end
 
 ]]
 function Node:addTo(target, zorder, tag)
-    target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getTag())
+    if "number" == type(tag) then
+        target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getTag())
+    elseif "string" == type(tag) then
+        target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getName())
+    else
+        target:addChild(self, zorder or self:getLocalZOrder())
+    end
     return self
 end
 
