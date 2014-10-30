@@ -462,14 +462,20 @@ LayerColor 对象使用指定的颜色填充。
 
 ]]
 function display.newColorLayer(color)
-    local node = display.newNode()
-    local layer = cc.LayerColor:create(color)
-    node:addChild(layer)
-    node:setTouchEnabled(true)
-    node:setTouchSwallowEnabled(true)
+    local node
 
-    node.setContentSize = layer.setContentSize
-    node.getContentSize = layer.getContentSize
+    if cc.bPlugin_ then
+        node = display.newNode()
+        local layer = cc.LayerColor:create(color)
+        node:addChild(layer)
+        node:setTouchEnabled(true)
+        node:setTouchSwallowEnabled(true)
+
+        node.setContentSize = layer.setContentSize
+        node.getContentSize = layer.getContentSize
+    else
+        node = cc.LayerColor:create(color)
+    end
 
     return node
 end
