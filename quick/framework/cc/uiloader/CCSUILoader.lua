@@ -152,6 +152,10 @@ function CCSUILoader:generateUINode(jsonNode, transX, transY, parent)
 				-- end
 				item:setItemSize(size.width, size.height)
 				uiNode:addItem(item)
+
+				if "Button" == v.classname then
+					children:setTouchSwallowEnabled(false)
+				end
 			elseif "PageView" == clsName then
 				local item = uiNode:newItem()
 				childrenNode:setPosition(0, 0)
