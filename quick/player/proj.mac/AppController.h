@@ -7,7 +7,7 @@
 
 class AppControllerBridge;
 
-@interface AppController : NSObject <NSApplicationDelegate, NSWindowDelegate>
+@interface AppController : NSObject <NSApplicationDelegate, NSWindowDelegate, NSFileManagerDelegate>
 {
     NSWindow *_window;
     BOOL _isAlwaysOnTop;
