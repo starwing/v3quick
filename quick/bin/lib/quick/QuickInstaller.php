@@ -102,7 +102,7 @@ class QuickInstaller
     	foreach ($files as $key => $file) 
     	{
     		$src = $this->quickPath . $file[2] . '/' . $file[0];
-    		$dest = $this->defaultTemplatePath . $file[3] . '/';
+    		$dest = $this->quickTemplatePath . $file[3] . '/';
     		if ($file[1]) 
     		{
     			$dest = $dest . $file[1];
@@ -118,7 +118,7 @@ class QuickInstaller
     	foreach ($pathes as $path)
     	{
     		$srcPath = $this->quickPath . $path[0];
-	        $dstPath = $this->defaultTemplatePath . $path[1];
+	        $dstPath = $this->quickTemplatePath . $path[1];
 	        $files = array();
 	        findFiles($srcPath, $files);
 	        foreach ($files as $src) 
@@ -223,10 +223,10 @@ class QuickInstaller
     {
         $this->setEnvFiles();
     	// $this->cleanupTemplate();
-        $this->copyTemplate();
-    	$this->copyFilesToTemplate();
-        $this->modifyFiles();
-        $this->replaceFiles();
+     //    $this->copyTemplate();
+    	// $this->copyFilesToTemplate();
+     //    $this->modifyFiles();
+     //    $this->replaceFiles();
     	return 0;
     }
 

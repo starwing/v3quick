@@ -1,5 +1,5 @@
 //
-// Prefix header for all source files of the 'HelloLua' target in the 'HelloLua' project
+// Prefix header for all source files of the '__PROJECT_COCOS_NAME__' target in the '__PROJECT_COCOS_NAME__' project
 //
 
 #ifdef __OBJC__

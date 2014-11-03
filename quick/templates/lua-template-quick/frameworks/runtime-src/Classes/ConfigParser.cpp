@@ -105,7 +105,7 @@ _isLandscape(true),
 _isWindowTop(false),
 _consolePort(CONSOLE_PORT),
 _uploadPort(UPLOAD_PORT),
-_viewName("HelloLua"),
+_viewName("__PROJECT_COCOS_NAME__"),
 _entryfile("src/main.lua"),
 _initViewSize(WIN_WIDTH, WIN_HEIGHT)
 {

@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4E6A7A0E-DDD8-4BAA-8B22-C964069364ED}</ProjectGuid>
-    <ProjectName>HelloLua</ProjectName>
+    <ProjectName>__PROJECT_COCOS_NAME__</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -102,11 +102,11 @@
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <HeaderFileName>HelloLua.h</HeaderFileName>
-      <InterfaceIdentifierFileName>HelloLua_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>HelloLua_p.c</ProxyFileName>
+      <HeaderFileName>__PROJECT_COCOS_NAME__.h</HeaderFileName>
+      <InterfaceIdentifierFileName>__PROJECT_COCOS_NAME___i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>__PROJECT_COCOS_NAME___p.c</ProxyFileName>
       <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>$(IntDir)/HelloLua.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)/__PROJECT_COCOS_NAME__.tlb</TypeLibraryName>
       <DllDataFileName>
       </DllDataFileName>
     </Midl>
@@ -155,11 +155,11 @@
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <TargetEnvironment>Win32</TargetEnvironment>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <HeaderFileName>HelloLua.h</HeaderFileName>
-      <InterfaceIdentifierFileName>HelloLua_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>HelloLua_p.c</ProxyFileName>
+      <HeaderFileName>__PROJECT_COCOS_NAME__.h</HeaderFileName>
+      <InterfaceIdentifierFileName>__PROJECT_COCOS_NAME___i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>__PROJECT_COCOS_NAME___p.c</ProxyFileName>
       <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>$(IntDir)/HelloLua.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)/__PROJECT_COCOS_NAME__.tlb</TypeLibraryName>
       <DllDataFileName>
       </DllDataFileName>
     </Midl>

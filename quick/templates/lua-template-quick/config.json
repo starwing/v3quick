@@ -2,7 +2,7 @@
     "init_cfg":{
        "isLandscape": __SCREEN_ORIENTATION_CONFIG_JSON__,
        "isWindowTop": false,
-       "name": "HelloLua",
+       "name": "__PROJECT_COCOS_NAME__",
        "width": __SCREEN_WIDTH__,
        "height": __SCREEN_HEIGHT__,
        "entry": "src/main.lua",

@@ -138,6 +138,7 @@ class ProjectCreator
 
         // prepare contents
         $this->vars['__TEMPLATE_PATH__'] = $this->config['template'];
+        $this->vars['__PROJECT_COCOS_NAME__'] = $this->config['cocos_project'];
         $this->vars['__PROJECT_PACKAGE_MODULE_NAME__'] = $this->config['packageModuleName'];
         $this->vars['__PROJECT_PACKAGE_MODULE_NAME_L__'] = strtolower($this->config['packageModuleName']);
         $this->vars['__PROJECT_PACKAGE_FULL_NAME__'] = $this->config['packageFullName'];
@@ -180,14 +181,11 @@ class ProjectCreator
             $this->vars['__SCREEN_ORIENTATION_CONFIG_JSON__'] = 'false';
         }
 
-        // $quick_path = __DIR__ . "/../../../..";
-        // $cocos_path = file_get_contents($quick_path . "/.COCOS_ROOT_PATH");
-        // $consoleDir = $cocos_path . DS . 'tools' . DS . 'cocos2d-console' . DS . 'bin';
         $consoleDir = $_ENV['COCOS_CONSOLE_ROOT'];
         // call cocos to create new project
         $cmd_str = $consoleDir . "/cocos new " . $this->config['cocos_project']
                     . " -p " . $this->vars['__PROJECT_PACKAGE_FULL_NAME__']
-                    . " -l lua -t quick -d " . $this->config['cocos_output'];
+                    . " -l lua -t runtime -d " . $this->config['cocos_output'];
         if ($this->config['extracmd'])
         {
             $cmd_str = $cmd_str . ' ' . str_replace('#', ' ', $this->config['extracmd']);
@@ -195,31 +193,31 @@ class ProjectCreator
         $this->exec_sys_cmd($cmd_str);
 
         // copy files
-        // $paths = $this->getPaths($this->config['template']);
-        // foreach ($paths as $sourcePath)
-        // {
-        //     $sourceFilename = substr($sourcePath, strlen($this->config['template']));
-        //     if ($sourceFilename == 'TEMPLATE_INFO.json') continue;
-        //     if ($this->config['noproj'])
-        //     {
-        //         if (substr($sourceFilename, 0, 5) == 'proj.' || substr($sourceFilename, 0, 8) == 'sources/')
-        //         {
-        //             continue;
-        //         }
-        //     }
-        //     else if ($this->config['onlyproj'])
-        //     {
-        //         if (substr($sourceFilename, 0, 5) != 'proj.' && substr($sourceFilename, 0, 8) != 'sources/' && substr($sourceFilename, 0, 10) != 'run-mac.sh' )
-        //         {
-        //             continue;
-        //         }
-        //     }
-        //     if (!$this->copyFile($sourcePath)) return false;
-        // }
+        $paths = $this->getPaths($this->config['template']);
+        foreach ($paths as $sourcePath)
+        {
+            $sourceFilename = substr($sourcePath, strlen($this->config['template']));
+            if ($sourceFilename == 'cocos-project-template.json') continue;
+            if ($this->config['noproj'])
+            {
+                if (substr($sourceFilename, 0, 5) == 'proj.' || substr($sourceFilename, 0, 8) == 'sources/')
+                {
+                    continue;
+                }
+            }
+            else if ($this->config['onlyproj'])
+            {
+                if (substr($sourceFilename, 0, 5) != 'proj.' && substr($sourceFilename, 0, 8) != 'sources/' && substr($sourceFilename, 0, 10) != 'run-mac.sh' )
+                {
+                    continue;
+                }
+            }
+            if (!$this->copyFile($sourcePath)) return false;
+        }
 
-        $this->modifyFiles();
-        $this->fixFiles();
-        $this->replaceFiles();
+        // $this->modifyFiles();
+        // $this->fixFiles();
+        // $this->replaceFiles();
 
         print("\n\n");
 
@@ -289,7 +287,7 @@ class ProjectCreator
 
         while (($file = readdir($dh)) !== false)
         {
-            if ($file == "." || $file == "..")
+            if ($file == "." || $file == ".." || $file == ".DS_Store")
             {
                 continue;
             }
