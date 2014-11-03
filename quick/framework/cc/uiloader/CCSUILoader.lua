@@ -1209,7 +1209,7 @@ function CCSUILoader:calcChildPosByName_(children, name, parentSize)
 			y = relativeRect.y + relativeRect.height - height * 0.5
 
 			x = x + (layoutParameter.marginLeft or 0)
-			y = y + (layoutParameter.marginTop or 0)
+			y = y - (layoutParameter.marginTop or 0)
 		elseif 17 == layoutParameter.align then
 			-- location right center
 			x = relativeRect.x + relativeRect.width + width * 0.5
