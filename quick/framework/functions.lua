@@ -1082,16 +1082,23 @@ end
 ~~~
 
 @param table t 表格
+@param boolean bArray t是否是数组,是数组,t中重复的项被移除后,后续的项会前移
 
 @return table 包含所有唯一值的新表格
 
 ]]
-function table.unique(t)
+function table.unique(t, bArray)
     local check = {}
     local n = {}
+    local idx = 1
     for k, v in pairs(t) do
         if not check[v] then
-            n[k] = v
+            if bArray then
+                n[idx] = v
+                idx = idx + 1
+            else
+                n[k] = v
+            end
             check[v] = true
         end
     end
