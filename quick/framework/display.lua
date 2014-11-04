@@ -71,6 +71,12 @@ local sharedAnimationCache   = cc.AnimationCache:getInstance()
 
 -- check device screen size
 local glview = sharedDirector:getOpenGLView()
+if nil == glview then
+    glview = cc.GLViewImpl:createWithRect("QuickCocos",
+        cc.rect(0, 0, CONFIG_SCREEN_WIDTH or 900, CONFIG_SCREEN_HEIGHT or 640))
+    sharedDirector:setOpenGLView(glview)
+end
+
 local size = glview:getFrameSize()
 display.sizeInPixels = {width = size.width, height = size.height}
 
@@ -103,7 +109,11 @@ if CONFIG_SCREEN_AUTOSCALE and CONFIG_SCREEN_AUTOSCALE ~="NONE" then
         CONFIG_SCREEN_WIDTH = w
         CONFIG_SCREEN_HEIGHT = h
         scale = 1.0
-        glview:setDesignResolutionSize(CONFIG_SCREEN_WIDTH, CONFIG_SCREEN_HEIGHT, cc.ResolutionPolicy.FILL_ALL)
+        if cc.bPlugin_ then
+            glview:setDesignResolutionSize(CONFIG_SCREEN_WIDTH, CONFIG_SCREEN_HEIGHT, cc.ResolutionPolicy.NO_BORDER)
+        else
+            glview:setDesignResolutionSize(CONFIG_SCREEN_WIDTH, CONFIG_SCREEN_HEIGHT, cc.ResolutionPolicy.FILL_ALL)
+        end
     else
         if not scaleX or not scaleY then
             scaleX, scaleY = w / CONFIG_SCREEN_WIDTH, h / CONFIG_SCREEN_HEIGHT
@@ -429,7 +439,17 @@ Layer 对象提供了触摸事件、重力感应、Android 按键检测等功能
 
 ]]
 function display.newLayer()
-    return cc.Layer:create()
+    local layer
+
+    if cc.bPlugin_ then
+        layer = display.newNode()
+        layer:setContentSize(display.width, display.height)
+        layer:setTouchEnabled(true)
+    else
+        layer = cc.Layer:create()
+    end
+
+    return layer
 end
 
 --[[--
@@ -438,7 +458,7 @@ end
 
 LayerColor 对象使用指定的颜色填充。
 
-@param ccColor3B color
+@param ccColor4B color
 
 @return LayerColor
 
@@ -446,7 +466,22 @@ LayerColor 对象使用指定的颜色填充。
 
 ]]
 function display.newColorLayer(color)
-    return cc.LayerColor:create(color)
+    local node
+
+    if cc.bPlugin_ then
+        node = display.newNode()
+        local layer = cc.LayerColor:create(color)
+        node:addChild(layer)
+        node:setTouchEnabled(true)
+        node:setTouchSwallowEnabled(true)
+
+        node.setContentSize = layer.setContentSize
+        node.getContentSize = layer.getContentSize
+    else
+        node = cc.LayerColor:create(color)
+    end
+
+    return node
 end
 
 --[[--
@@ -475,6 +510,11 @@ function display.newNode()
     return cc.Node:create()
 end
 
+if cc.ClippingRectangleNode then
+    cc.ClippingRegionNode = cc.ClippingRectangleNode
+else
+    cc.ClippingRectangleNode = cc.ClippingRegionNode
+end
 --[[--
 
 创建并返回一个 ClippingRegionNode 对象。
@@ -505,7 +545,11 @@ scene:addChild(clipnode)
 
 ]]
 function display.newClippingRegionNode(rect)
-    return cc.ClippingRegionNode:create(rect)
+    if rect then
+        return cc.ClippingRegionNode:create(rect)
+    else
+        return cc.ClippingRegionNode:create()
+    end
 end
 
 --[[--
@@ -576,7 +620,7 @@ function display.newSprite(filename, x, y, params)
             if display.TEXTURES_PIXEL_FORMAT[filename] then
                 cc.Texture2D:setDefaultAlphaPixelFormat(display.TEXTURES_PIXEL_FORMAT[filename])
                 sprite = spriteClass:create(filename)
-                cc.Texture2D:setDefaultAlphaPixelFormat(cc.TEXTURE2_D_PIXEL_FORMAT_RGB_A8888)
+                cc.Texture2D:setDefaultAlphaPixelFormat(cc.TEXTURE2D_PIXEL_FORMAT_RGBA8888)
             else
                 if params and params.capInsets then
                     sprite = spriteClass:create(params.capInsets, filename)
@@ -631,7 +675,13 @@ local sprite = display.newScale9Sprite("Box.png", 0, 0, cc.size(400, 300))
 
 ]]
 function display.newScale9Sprite(filename, x, y, size, capInsets)
-    return display.newSprite(filename, x, y, {class = cc.Scale9Sprite, size = size, capInsets = capInsets})
+    local scale9sp
+    if cc.bPlugin_ then
+        scale9sp = ccui.Scale9Sprite
+    else
+        scale9sp = cc.Scale9Sprite
+    end
+    return display.newSprite(filename, x, y, {class = scale9sp, size = size, capInsets = capInsets})
 end
 
 --[[--
@@ -1544,7 +1594,7 @@ end
 
 ]]
 function display.removeAnimationCache(name)
-    sharedAnimationCache:removeAnimationByName(name)
+    sharedAnimationCache:removeAnimation(name)
 end
 
 --[[--
@@ -1615,7 +1665,7 @@ local sp = display.printscreen(node, {})
 @param node A node to print.
 @param args
 
-@return An instance of Sprite or FilteredSprite.
+@return FilteredSprite   An instance of Sprite or FilteredSprite.
 
 ]]
 function display.printscreen(node, args)
