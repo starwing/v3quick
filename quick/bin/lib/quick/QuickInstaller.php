@@ -176,15 +176,15 @@ class QuickInstaller
 
     private function setEnvFiles()
     {
-        file_put_contents($this->quickPath . "/.COCOS_ROOT_PATH", $this->cocosPath);
+        // file_put_contents($this->quickPath . "/.COCOS_ROOT_PATH", $this->cocosPath);
         $quickBinPath = $this->quickPath . "/quick/bin";
 
         $sh_str = "#!/bin/bash\n";
         $bat_str = "@echo off\n";
 
-        // $tmpstr = $this->quickPath;
-        // $sh_str = $sh_str . "export QUICK_V3_ROOT=" . $tmpstr . "\n";
-        // $bat_str = $bat_str . "set QUICK_V3_ROOT=" . $tmpstr . "\n";
+        $tmpstr = $this->cocosPath;
+        $sh_str = $sh_str . "export ORIGIN_COCOS_X_ROOT=" . $tmpstr . "\n";
+        $bat_str = $bat_str . "set ORIGIN_COCOS_X_ROOT=" . $tmpstr . "\n";
 
         $tmpstr = $_ENV['COCOS_CONSOLE_ROOT'];
         if ($tmpstr) 

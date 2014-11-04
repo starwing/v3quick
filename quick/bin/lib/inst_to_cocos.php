@@ -4,7 +4,7 @@ require_once(__DIR__ . '/quick/QuickInstaller.php');
 
 $options = array(
 	"FilesCopyToTemplate" => array(
-			array("framework_precompiled.zip", "framework_quick.zip", "/quick/lib/framework_precompiled", "/res"),
+			// array("framework_precompiled.zip", "framework_quick.zip", "/quick/lib/framework_precompiled", "/res"),
 		),
 
 	"PathesCopyToTemplate" => array(
@@ -14,9 +14,9 @@ $options = array(
 
 	"FilesNeedModify" => array(
 			array(
-				"/cocos/platform/win32/CCFileUtils-win32.cpp",
-				's_resourcePath.append("/../../");',
-				's_resourcePath.append("/");',
+				// "/cocos/platform/win32/CCFileUtils-win32.cpp",
+				// 's_resourcePath.append("/../../");',
+				// 's_resourcePath.append("/");',
 				),
 		),
 
@@ -30,22 +30,22 @@ $options = array(
 
 function check_cocos_ver()
 {
-	$cocos_path = $_ENV['COCOS_CONSOLE_ROOT'];
+	$cocos_path = $_ENV['ORIGIN_COCOS_X_ROOT'];
 	if (!$cocos_path) 
 	{
 		return;
 	}
 
-	$consoleDir = DS . 'tools' . DS . 'cocos2d-console' . DS . 'bin';
-	$pos = strpos($cocos_path, $consoleDir);
-	if ($pos != false)
-	{
-		$cocos_path = substr($cocos_path, 0, $pos);
-	}
-	else
-	{
-		return;
-	}
+	// $consoleDir = DS . 'tools' . DS . 'cocos2d-console' . DS . 'bin';
+	// $pos = strpos($cocos_path, $consoleDir);
+	// if ($pos != false)
+	// {
+	// 	$cocos_path = substr($cocos_path, 0, $pos);
+	// }
+	// else
+	// {
+	// 	return;
+	// }
 
 	if (is_dir($cocos_path . '/external/lua/quick')) 
 	{

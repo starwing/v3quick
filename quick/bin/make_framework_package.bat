@@ -19,8 +19,8 @@ rem )
 rem del ___tmp___
 
 :: update templates
-copy lib\framework_precompiled\framework_precompiled_wp8.zip templates\PROJECT_TEMPLATE_01\proj.wp8\__PROJECT_PACKAGE_LAST_NAME_L__\Assets\Resources\res\framework_precompiled_wp8.zip > NUL
-echo UPDATE templates\PROJECT_TEMPLATE_01\proj.wp8\__PROJECT_PACKAGE_LAST_NAME_L__\Assets\Resources\res\framework_precompiled_wp8.zip
+rem copy lib\framework_precompiled\framework_precompiled_wp8.zip templates\PROJECT_TEMPLATE_01\proj.wp8\__PROJECT_PACKAGE_LAST_NAME_L__\Assets\Resources\res\framework_precompiled_wp8.zip > NUL
+rem echo UPDATE templates\PROJECT_TEMPLATE_01\proj.wp8\__PROJECT_PACKAGE_LAST_NAME_L__\Assets\Resources\res\framework_precompiled_wp8.zip
 
 :: other platforms
 call %DIR%compile_scripts.bat -i framework -o lib\framework_precompiled\framework_precompiled.zip -p framework -m zip
