@@ -37,13 +37,14 @@ local Node = c.Node
 
 @param node child 要加入的结点
 @param number zorder 要加入结点的Z值
-@param number tag 要加入结点的tag
+@param mixed tag 要加入结点的tag或name
 
 @return Node 当前结点
 
 ]]
 function Node:add(child, zorder, tag)
     self:addChild(child, zorder or child:getLocalZOrder(), tag or child:getTag())
+
     return self
 end
 
@@ -53,13 +54,14 @@ end
 
 @param node target 想作为其子结点的结点
 @param number zorder 当前结点的Z值
-@param number tag 当前结点的tag
+@param mixed tag 当前结点的tag或name
 
 @return Node 当前结点
 
 ]]
 function Node:addTo(target, zorder, tag)
     target:addChild(self, zorder or self:getLocalZOrder(), tag or self:getTag())
+
     return self
 end
 
@@ -104,7 +106,7 @@ end
 
 --[[--
 
-设置当前结点的锚点在它的中心
+设置当前结点在屏幕的中心
 
 @return Node 当前结点
 
