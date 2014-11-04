@@ -1017,7 +1017,7 @@ function UIListView:unloadOneItem_(idx)
 	table.remove(self.items_, unloadIdx)
 	self:addFreeItem_(item)
 	-- item:removeFromParentAndCleanup(false)
-	self.container:removeChild(item, false)
+	self.container:removeChild(item)
 
 	self.delegate_[UIListView.DELEGATE](self, UIListView.UNLOAD_CELL_TAG, idx)
 end

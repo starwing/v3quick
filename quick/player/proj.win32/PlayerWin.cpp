@@ -28,6 +28,7 @@
 
 #include "CCLuaEngine.h"
 #include "PlayerLuaCore.h"
+#include "PlayerLuaCoreManual.hpp"
 
 // for network
 #include "cocos2dx_extra.h"
@@ -190,6 +191,7 @@ void PlayerWin::loadLuaConfig()
 
     // load player lua core
     luaopen_PlayerLuaCore(pEngine->getLuaStack()->getLuaState());
+    luaopen_PlayerLuaCore_Manual(pEngine->getLuaStack()->getLuaState());
 
     // set env
     string quickRootPath = SimulatorConfig::getInstance()->getQuickCocos2dxRootPath();
@@ -265,7 +267,7 @@ int PlayerWin::run()
     }
 
     // set framework path
-    if (!_project.isLoadPrecompiledFramework())
+    if (_project.isLoadPrecompiledFramework())
     {
         FileUtils::getInstance()->addSearchPath(SimulatorConfig::getInstance()->getQuickCocos2dxRootPath() + "quick/");
     }
