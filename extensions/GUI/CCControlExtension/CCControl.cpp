@@ -29,6 +29,7 @@
 
 #include "CCControl.h"
 #include "base/CCDirector.h"
+#include "2d/CCMenu.h"
 #include "base/CCTouch.h"
 #include "CCInvocation.h"
 #include "base/CCEventDispatcher.h"
@@ -49,7 +50,7 @@ Control::Control()
 
 Control* Control::create()
 {
-    Control* pRet = new Control();
+    Control* pRet = new (std::nothrow) Control();
     if (pRet && pRet->init())
     {
         pRet->autorelease();
@@ -263,7 +264,7 @@ Vector<Invocation*>& Control::dispatchListforControlEvent(EventType controlEvent
     // If the invocation list does not exist for the  dispatch table, we create it
     if (iter == _dispatchTable.end())
     {
-        invocationList = new Vector<Invocation*>();
+        invocationList = new (std::nothrow) Vector<Invocation*>();
         _dispatchTable[(int)controlEvent] = invocationList;
     }
     else

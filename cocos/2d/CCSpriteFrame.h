@@ -29,7 +29,6 @@ THE SOFTWARE.
 #define __SPRITE_CCSPRITE_FRAME_H__
 
 #include "2d/CCNode.h"
-#include "base/CCProtocols.h"
 #include "base/CCRef.h"
 #include "math/CCGeometry.h"
 
@@ -114,7 +113,7 @@ public:
     // Overrides
 	virtual SpriteFrame *clone() const override;
     
-//CC_CONSTRUCTOR_ACCESS:
+CC_CONSTRUCTOR_ACCESS:
     /**
      * @lua NA
      */

@@ -24,19 +24,20 @@ class ProjectCreator
             printf("ERROR: invalid template path \"%s\"\n", $templatePath);
             return false;
         }
-        if (!file_exists($templatePath . 'TEMPLATE_INFO.json'))
+        if (!file_exists($templatePath . '../cocos2dx_files.json'))
         {
-            printf("ERROR: not found TEMPLATE_INFO.json in template path \"%s\"\n", $templatePath);
+            printf("ERROR: not found cocos2dx_files.json in template path \"%s/..\"\n", $templatePath);
             return false;
         }
-        $info = file_get_contents($templatePath . 'TEMPLATE_INFO.json');
-        $info = json_decode($info, true);
-        if (!is_array($info) || empty($info['name']))
+        $cocos_files = file_get_contents($templatePath . '../cocos2dx_files.json');
+        $cocos_files = json_decode($cocos_files, true);
+        if (!is_array($cocos_files) || empty($cocos_files['common']))
         {
-            printf("ERROR: invalid TEMPLATE_INFO.json in template path \"%s\"\n", $templatePath);
+            printf("ERROR: not found cocos2dx_files.json in template path \"%s/..\"\n", $templatePath);
             return false;
         }
         $this->config['template'] = $templatePath;
+        $this->config['cocos_files'] = $cocos_files;
 
         // check package name
         $packageName = str_replace('-', '_', strtolower($this->config['package']));
@@ -64,11 +65,26 @@ class ProjectCreator
         // check output path
         if (empty($this->config['output']))
         {
-            $this->config['output'] = rtrim(getcwd(), '/\\') . DS . $lastname . DS;
+            $curpath = rtrim(getcwd(), '/\\');
+            $this->config['output'] = $curpath . DS . $lastname . DS;
+            $this->config['cocos_output'] = $curpath;
+            $this->config['cocos_project'] = $lastname;
         }
         else
         {
-            $this->config['output'] = rtrim($this->config['output'], '/\\') . DS;
+            $outpath = rtrim($this->config['output'], '/\\');
+            $this->config['output'] = $outpath . DS;
+            $pos = strrpos($outpath, DS);
+            if ($pos != false)
+            {
+                $this->config['cocos_output'] = substr($outpath, 0, $pos);
+                $this->config['cocos_project'] = substr($outpath, $pos+1);
+            }
+            else
+            {
+                $this->config['cocos_output'] = $outpath;
+                $this->config['cocos_project'] = $lastname;
+            }
         }
         if (!$this->config['force'] && (is_dir($this->config['output']) || file_exists($this->config['output'])))
         {
@@ -92,6 +108,11 @@ class ProjectCreator
             return false;
         }
 
+        if ($this->options['extracmd'])
+        {
+            $this->config['extracmd'] = $this->options['extracmd'];
+        }
+
         if (!$this->config['quiet'])
         {
             dumpConfig($this->config, $this->options);
@@ -109,15 +130,16 @@ class ProjectCreator
         }
 
         // create project dir
-        if (!is_dir($this->config['output'])) mkdir($this->config['output']);
-        if (!is_dir($this->config['output']))
-        {
-            printf("ERROR: create project dir \"%s\" failure\n", $this->config['output']);
-            return false;
-        }
+        // if (!is_dir($this->config['output'])) mkdir($this->config['output']);
+        // if (!is_dir($this->config['output']))
+        // {
+        //     printf("ERROR: create project dir \"%s\" failure\n", $this->config['output']);
+        //     return false;
+        // }
 
         // prepare contents
         $this->vars['__TEMPLATE_PATH__'] = $this->config['template'];
+        $this->vars['__PROJECT_COCOS_NAME__'] = $this->config['cocos_project'];
         $this->vars['__PROJECT_PACKAGE_MODULE_NAME__'] = $this->config['packageModuleName'];
         $this->vars['__PROJECT_PACKAGE_MODULE_NAME_L__'] = strtolower($this->config['packageModuleName']);
         $this->vars['__PROJECT_PACKAGE_FULL_NAME__'] = $this->config['packageFullName'];
@@ -151,12 +173,32 @@ class ProjectCreator
             $this->vars['__SCREEN_ORIENTATION_IOS__'] = '<string>UIInterfaceOrientationPortrait</string>';
         }
 
+        if ($this->config['orientation'] == 'landscape')
+        {
+            $this->vars['__SCREEN_ORIENTATION_CONFIG_JSON__'] = 'true';
+        }
+        else
+        {
+            $this->vars['__SCREEN_ORIENTATION_CONFIG_JSON__'] = 'false';
+        }
+
+        // $consoleDir = $_ENV['COCOS_CONSOLE_ROOT'];
+        // // call cocos to create new project
+        // $cmd_str = $consoleDir . "/cocos new " . $this->config['cocos_project']
+        //             . " -p " . $this->vars['__PROJECT_PACKAGE_FULL_NAME__']
+        //             . " -l lua -t runtime -d " . $this->config['cocos_output'];
+        // if ($this->config['extracmd'])
+        // {
+        //     $cmd_str = $cmd_str . ' ' . str_replace('#', ' ', $this->config['extracmd']);
+        // }
+        // $this->exec_sys_cmd($cmd_str);
+
         // copy files
         $paths = $this->getPaths($this->config['template']);
         foreach ($paths as $sourcePath)
         {
             $sourceFilename = substr($sourcePath, strlen($this->config['template']));
-            if ($sourceFilename == 'TEMPLATE_INFO.json') continue;
+            if ($sourceFilename == 'cocos-project-template.json') continue;
             if ($this->config['noproj'])
             {
                 if (substr($sourceFilename, 0, 5) == 'proj.' || substr($sourceFilename, 0, 8) == 'sources/')
@@ -173,6 +215,12 @@ class ProjectCreator
             }
             if (!$this->copyFile($sourcePath)) return false;
         }
+
+        $this->copyCocosFiles();
+        $this->copyFrameworkFiles();
+        // $this->modifyFiles();
+        $this->fixFiles();
+        $this->replaceFiles();
 
         print("\n\n");
 
@@ -242,7 +290,7 @@ class ProjectCreator
 
         while (($file = readdir($dh)) !== false)
         {
-            if ($file == "." || $file == "..")
+            if ($file == "." || $file == ".." || $file == ".DS_Store")
             {
                 continue;
             }
@@ -259,6 +307,182 @@ class ProjectCreator
         }
         closedir($dh);
         return $files;
+    }
+
+    function exec_sys_cmd($cmd_str)
+    {
+        echo "exec: $cmd_str\n";
+        system($cmd_str, $retval);
+        echo "*******************\n";
+        return $retval;
+    }
+
+    // function modifyFiles()
+    // {
+    //     $projectPath = $this->config['output'];
+    //     $files = array();
+    //     findFiles($projectPath, $files);
+    //     foreach ($files as $src) 
+    //     {
+    //         $contents = file_get_contents($src);
+    //         if ($contents == false)
+    //         {
+    //             continue;
+    //         }
+    //         $flagReplace = false;
+    //         foreach ($this->vars as $key => $value)
+    //         {
+    //             $pos = strpos($contents, $key);
+    //             if ($pos==false)
+    //             {
+    //                 continue;
+    //             }
+    //             $contents = str_replace($key, $value, $contents);
+    //             $flagReplace = true;
+    //         }
+    //         if (!$flagReplace)
+    //         {
+    //             continue;
+    //         }
+    //         printf("modify file \"%s\" ... ", $src);
+    //         $stat = stat($src);
+    //         if (file_put_contents($src, $contents) == false)
+    //         {
+    //             printf("ERROR: file_put_contents failure\n");
+    //             continue;
+    //         }
+    //         chmod($src, $stat['mode']);
+
+    //         printf("OK\n");
+    //     }
+    // }
+
+    private function fixFiles()
+    {
+        $cocosPath = $this->config['output'] . 'frameworks/cocos2d-x';
+        $files = $this->config['extrawork']["FilesNeedModify"];
+        foreach ($files as $file) 
+        {
+            $src = $cocosPath . $file[0];
+            printf("fix file \"%s\" ... ", $src);
+            $contents = file_get_contents($src);
+            if ($contents == false)
+            {
+                printf("ERROR: file_get_contents failure\n");
+                continue;
+            }
+            // $stat = stat($src);
+
+            $contents = str_replace($file[1], $file[2], $contents);
+
+            if (file_put_contents($src, $contents) == false)
+            {
+                printf("ERROR: file_put_contents failure\n");
+                continue;
+            }
+            // chmod($dest, $stat['mode']);
+
+            printf("OK\n");
+        }
+
+        return true;
+    }
+
+    private function replaceFiles()
+    {
+        $quickPath = $_ENV['QUICK_V3_ROOT'];
+        $cocosPath = $this->config['output'] . 'frameworks/cocos2d-x';
+        $files = $this->config['extrawork']["FilesNeedReplace"];
+        foreach ($files as $file) 
+        {
+            $src = $quickPath . "/quick/lib/hotfix/" . $file[0];
+            $dst = $cocosPath . $file[1];
+            $this->replaceFile($src, $dst, "replace");
+
+            printf("OK\n");
+        }
+
+        return true;
+    }
+
+    private function replaceFile($src, $dest, $cmd)
+    {
+        printf($cmd . " file \"%s\" ... ", $dest);
+        $destinationDir = pathinfo($dest, PATHINFO_DIRNAME);
+
+        if (!is_dir($destinationDir))
+        {
+            mkdir($destinationDir, 0777, true);
+        }
+        if (!is_dir($destinationDir))
+        {
+            printf("ERROR: mkdir failure\n");
+            return false;
+        }
+
+        $contents = file_get_contents($src);
+        if ($contents == false)
+        {
+            printf("ERROR: file_get_contents failure\n");
+            return false;
+        }
+        $stat = stat($src);
+
+        if (file_put_contents($dest, $contents) == false)
+        {
+            printf("ERROR: file_put_contents failure\n");
+            return false;
+        }
+        chmod($dest, $stat['mode']);
+
+        printf("OK\n");
+        return true;
+    }
+
+    private function copyCocosFiles()
+    {
+        $quickPath = $_ENV['QUICK_V3_ROOT'];
+        $cocosPath = $this->config['output'] . 'frameworks/cocos2d-x';
+        $files = array_merge( $this->config['cocos_files']['common'], 
+                               $this->config['cocos_files']['lua'] );
+        foreach ($files as $file) 
+        {
+            $src = $quickPath . "/" . $file;
+            if (!file_exists($src)) continue;
+            $dst = $cocosPath . "/" . $file;
+            $this->replaceFile($src, $dst, "create");
+        }
+
+        return true;
+    }
+
+    private function copyDir($srcPath, $dstPath)
+    {
+        $files = array();
+        findFiles($srcPath, $files);
+        foreach ($files as $src) 
+        {
+            $dest = str_replace($srcPath, $dstPath, $src);
+            $this->replaceFile($src, $dest, "create");
+        }
+    }
+
+    private function copyFrameworkFiles()
+    {
+        $quickPath = $_ENV['QUICK_V3_ROOT'] . "/quick";
+        $cocosPath = $this->config['output'] . "src";
+
+        $dirname = "/cocos";
+        $src = $quickPath . $dirname;
+        $dst = $cocosPath . $dirname;
+        $this->copyDir($src, $dst);
+
+        $dirname = "/framework";
+        $src = $quickPath . $dirname;
+        $dst = $cocosPath . $dirname;
+        $this->copyDir($src, $dst);
+
+        return true;
     }
 
 }

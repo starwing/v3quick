@@ -448,13 +448,6 @@ public:
     };
     /** Parse configuration file */
     virtual bool parseConfig(ConfigType type, const std::string& str) = 0;
-    
-    virtual int executeNodeEvent(Node* pNode, int nAction) = 0;
-    virtual int executeNodeEnterFrameEvent(Node* pNode, float dt) = 0;
-    virtual int executeNodeTouchesEvent(Node* pNode, int eventType, const std::vector<Touch*>& touches, int phase) = 0;
-    virtual int executeNodeTouchEvent(Node* pNode, int eventType, Touch *pTouch, int phase) = 0;
-    virtual int executeKeypadEvent(Node* pNode, int eventType) = 0;
-    virtual int executeAccelerometerEvent(Node* pNode, Acceleration* pAccelerationValue) = 0;
 };
 
 class Node;
@@ -502,17 +495,17 @@ public:
      * @js NA
      * @lua NA
      */
-//    static bool sendNodeEventToJS(Node* node, int action);
+    static bool sendNodeEventToJS(Node* node, int action);
     /**
      * @js NA
      * @lua NA
      */
-//    static bool sendNodeEventToJSExtended(Node* node, int action);
+    static bool sendNodeEventToJSExtended(Node* node, int action);
     /**
      * @js NA
      * @lua NA
      */
-//    static void sendNodeEventToLua(Node* node, int action);
+    static void sendNodeEventToLua(Node* node, int action);
     /**
      * @js NA
      * @lua NA

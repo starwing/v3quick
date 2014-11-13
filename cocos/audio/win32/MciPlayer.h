@@ -1,7 +1,7 @@
 #ifndef _MCI_PLAYER_WIN32_H_
 #define _MCI_PLAYER_WIN32_H_
 
-#include "CCStdC.h"
+#include "platform/CCStdC.h"
 #include <mmsystem.h>
 #include <string>
 using namespace std;
@@ -67,7 +67,7 @@ private:
     UINT        _soundID;
     UINT        _times;
     bool        _playing;
-    std::string _strExt;
+    std::string strExt;
 };
 
 } // end of namespace CocosDenshion

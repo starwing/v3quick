@@ -28,7 +28,7 @@ THE SOFTWARE.
 #ifndef __CCCONFIG_H__
 #define __CCCONFIG_H__
 
-#include "base/CCPlatformConfig.h"
+#include "platform/CCPlatformConfig.h"
 
 /**
  @file
@@ -287,12 +287,6 @@ To enable set it to a value different than 0. Disabled by default.
 #define CC_USE_WEBP  1
 #endif // CC_USE_WEBP
 
-/** Support TGA or not. If your application don't use webp format picture, you can undefine this macro to save package size.
- */
-#ifndef CC_USE_TGA
-#define CC_USE_TGA  1
-#endif // CC_USE_TGA
-
 /** Enable Script binding */
 #ifndef CC_ENABLE_SCRIPT_BINDING
 #define CC_ENABLE_SCRIPT_BINDING 1
@@ -307,5 +301,5 @@ To enable set it to a value different than 0. Disabled by default.
 #ifndef CC_CONSTRUCTOR_ACCESS
 #define CC_CONSTRUCTOR_ACCESS protected
 #endif
-
+ 
 #endif // __CCCONFIG_H__

@@ -1,5 +1,6 @@
 <?php
 
+ini_set('memory_limit','256M');
 require_once(__DIR__ . '/quick/ProjectCreator.php');
 
 $options = array(
@@ -13,6 +14,24 @@ $options = array(
     array('c',   'config',      1,      null,        'load options from config file'),
     array('q',   'quiet',       0,      false,       'quiet'),
     array('t',   'template',    1,      '',          'template dir'),
+    array('e',   'extracmd',    1,      null,        'extra cmd for cocos'),
+);
+
+$extrawork = array(
+    "FilesNeedModify" => array(
+            array(
+                "/cocos/platform/win32/CCFileUtils-win32.cpp",
+                's_resourcePath.append("/");',
+                's_resourcePath.append("/../../");',
+                ),
+        ),
+
+    "FilesNeedReplace" => array(
+            array(
+                'cocos2d.cpp',
+                "/cocos/cocos2d.cpp",
+                ),
+        ),
 );
 
 function errorhelp()
@@ -114,6 +133,7 @@ if ($config['config'])
     }
 }
 
+$config['extrawork'] = $extrawork;
 $creator = new ProjectCreator($config, $options);
 if ($creator->validateConfig())
 {

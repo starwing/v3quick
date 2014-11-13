@@ -16,16 +16,8 @@ function CCSUILoader:load(json, params)
 		print("Error! not support CCEditbox in cocostudio layout file")
 	end
 
-	-- local fileUtil = cc.FileUtils:getInstance()
-	-- local fullPath = fileUtil:fullPathForFilename(jsonFile)
-	-- local jsonStr = fileUtil:getStringFromFile(fullPath)
-	-- local jsonVal = json.decode(jsonStr)
-
 	self.texturesPng = json.texturesPng
 	self:loadTexture(json)
-	-- for i,v in ipairs(jsonVal.textures) do
-	-- 	display.addSpriteFrames(v, jsonVal.texturesPng[i])
-	-- end
 
 	local node, bAdaptScreen = self:parserJson(json)
 	self.texturesPng = nil
@@ -84,8 +76,7 @@ function CCSUILoader:generateUINode(jsonNode, transX, transY, parent)
 		return
 	end
 
-	self:modifyPanelChildAdaptScale_(options, jsonNode.children)
-	self:modifyPanelChildPos_(clsName, options.adaptScreen, uiNode:getContentSize(), jsonNode.children)
+	self:modifyPanelChildPos_(clsName, options.adaptScreen, options.sizeType, uiNode:getContentSize(), jsonNode.children)
 
 	-- ccs中父节点的原点在父节点的锚点位置，这里用posTrans作转换
 	local posTrans = uiNode:getAnchorPoint()
@@ -119,8 +110,8 @@ function CCSUILoader:generateUINode(jsonNode, transX, transY, parent)
 	end
 	uiNode:setRotation(options.rotation or 0)
 
-	uiNode:setScaleX((options.scaleX or 1) * uiNode:getScaleX() * (options.adaptScaleX_ or 1))
-	uiNode:setScaleY((options.scaleY or 1) * uiNode:getScaleY() * (options.adaptScaleY_ or 1))
+	uiNode:setScaleX((options.scaleX or 1) * uiNode:getScaleX())
+	uiNode:setScaleY((options.scaleY or 1) * uiNode:getScaleY())
 	uiNode:setVisible(options.visible)
 	uiNode:setLocalZOrder(options.ZOrder or 0)
 	-- uiNode:setGlobalZOrder(options.ZOrder or 0)
@@ -632,6 +623,10 @@ function CCSUILoader:createEditBox(options)
 		end
 		editBox:setPosition(options.x, options.y)
 	else
+		if not options.maxLengthEnable then
+			-- if maxlength not enable set the length is 0
+			options.maxLength = 0
+		end
 		editBox = cc.ui.UIInput.new({
 		UIInputType = 2,
         placeHolder = options.placeHolder,
@@ -692,12 +687,13 @@ function CCSUILoader:createPanel(options)
 		if options.backGroundImageData and options.backGroundImageData.path then
 			local capInsets = cc.rect(options.capInsetsX, options.capInsetsY,
 						options.capInsetsWidth, options.capInsetsHeight)
+			local scale9sp = ccui.Scale9Sprite or cc.Scale9Sprite
 			if self.bUseTexture then
-				bgLayer = cc.Scale9Sprite:createWithSpriteFrameName(
+				bgLayer = scale9sp:createWithSpriteFrameName(
 					options.backGroundImageData.path, capInsets)
 				bgLayer:setContentSize(cc.size(options.width, options.height))
 			else
-				bgLayer = cc.Scale9Sprite:create(
+				bgLayer = scale9sp:create(
 					capInsets, options.backGroundImageData.path)
 				bgLayer:setContentSize(cc.size(options.width, options.height))
 			end
@@ -711,11 +707,6 @@ function CCSUILoader:createPanel(options)
 
 	local conSize
 	if options.adaptScreen then
-		--panel自适应,记录下panel在x,y方向缩放的大小,
-		--如果panel有子结点的大小为panel的百分比,需要把这个缩放值传给子结点
-		options.scaleX_ = display.width/options.width
-		options.scaleY_ = display.height/options.height
-
 		options.width = display.width
 		options.height = display.height
 	end
@@ -846,57 +837,49 @@ function CCSUILoader:createPageView(options)
 end
 
 function CCSUILoader:prettyJson(json)
-	local setZOrder
-	setZOrder = function(node, isParentScale)
-		if isParentScale then
+	local prettyNode
+	prettyNode = function(node, parent)
+		if not node then
+			return
+		end
+
+		local options = node.options
+		local parentOption = parent and parent.options
+
+		-- 调整百分比的子节点宽高
+		if options.adaptScreen then
+			options.width = display.width
+			options.height = display.height
+		elseif 1 == options.sizeType then
+			if parentOption then
+				options.width = parentOption.width * options.sizePercentX
+ 				options.height = parentOption.height * options.sizePercentY
+			end
+		end
+
+		-- 调整九宫格的子节点的zorder
+		if parentOption and parentOption.scale9Enable then
         	node.options.ZOrder = node.options.ZOrder or 0 + 3
 		end
 
 		if not node.children then
-			print("CCSUILoader children is nil")
 			return
 		end
 		if 0 == #node.children then
 			return
 		end
 
-        for i,v in ipairs(node.children) do
-			setZOrder(v, node.options.scale9Enable)
-        end
+		for i,v in ipairs(node.children) do
+			prettyNode(v, node)
+		end
 	end
 
-	setZOrder(json)
+	prettyNode(json)
 end
 
--- function CCSUILoader:transPercentPosition(options, parent)
--- 	if not parent then
--- 		return
--- 	end
--- 	if 1 ~= options.positionType then
--- 		return
--- 	end
-
--- 	local posX, posY = parent:getPosition()
--- 	options.x = posX + options.x
--- 	options.y = posY + options.y
--- end
-
--- function CCSUILoader:transPercentSize(options, parent)
--- 	if not parent then
--- 		return
--- 	end
--- 	if 1 ~= options.sizeType then
--- 		return
--- 	end
-
--- 	local parentSize = parent:getContentSize()
--- 	options.width = parentSize.width * options.sizePercentX
--- 	options.height = parentSize.height * options.sizePercentY
--- end
-
-function CCSUILoader:modifyPanelChildPos_(clsType, bAdaptScreen, parentSize, children)
+function CCSUILoader:modifyPanelChildPos_(clsType, bAdaptScreen, sizeType, parentSize, children)
 	if "Panel" ~= clsType
-		or not bAdaptScreen
+		or (not bAdaptScreen and sizeType == 0)
 		or not children then
 		return
 	end
@@ -908,132 +891,6 @@ function CCSUILoader:modifyLayoutChildPos_(parentSize, children)
 	for _,v in ipairs(children) do
 		self:calcChildPosByName_(children, v.options.name, parentSize)
 	end
-	-- local layoutParameter
-	-- local options
-	-- local x, y
-	-- local bUseOrigin = false
-
-	-- for i,v in ipairs(children) do
-	-- 	bUseOrigin = false
-	-- 	options = v.options
-	-- 	layoutParameter = options.layoutParameter
-
-	-- 	if 1 == layoutParameter.type then
-	-- 		if 1 == layoutParameter.gravity then
-	-- 			-- left
-	-- 			x = options.width * 0.5
-	-- 		elseif 2 == layoutParameter.gravity then
-	-- 			-- top
-	-- 			y = parentSize.height - options.height * 0.5
-	-- 		elseif 3 == layoutParameter.gravity then
-	-- 			-- right
-	-- 			x = parentSize.width - options.width * 0.5
-	-- 		elseif 4 == layoutParameter.gravity then
-	-- 			-- bottom
-	-- 			y = options.height * 0.5
-	-- 		elseif 5 == layoutParameter.gravity then
-	-- 			-- center vertical
-	-- 			y = parentSize.height * 0.5
-	-- 		elseif 6 == layoutParameter.gravity then
-	-- 			-- center horizontal
-	-- 			x = parentSize.width * 0.5
-	-- 		else
-	-- 			-- use origin pos
-	-- 			x = options.x
-	-- 			y = options.y
-	-- 			bUseOrigin = true
-	-- 			print("CCSUILoader - modifyLayoutChildPos_ not support gravity:" .. layoutParameter.type)
-	-- 		end
-
-	-- 		if 1 == layoutParameter.gravity
-	-- 			or 3 == layoutParameter.gravity
-	-- 			or 6 == layoutParameter.gravity then
-	-- 			x = ((options.anchorPointX or 0.5) - 0.5)*options.width + x
-	-- 			y = options.y
-	-- 		else
-	-- 			x = options.x
-	-- 			y = ((options.anchorPointY or 0.5) - 0.5)*options.height + y
-	-- 		end
-	-- 	elseif 2 == layoutParameter.type then
-
-	-- 		-- calc pos on center anchor point (0.5, 0.5)
-	-- 		if 1 == layoutParameter.align then
-	-- 			-- top left
-	-- 			x = options.width * 0.5
-	-- 			y = parentSize.height - options.height * 0.5
-
-	-- 			x = x + (layoutParameter.marginLeft or 0)
-	-- 			y = y - (layoutParameter.marginTop or 0)
-	-- 		elseif 2 == layoutParameter.align then
-	-- 			-- top center
-	-- 			x = parentSize.width * 0.5
-	-- 			y = parentSize.height - options.height * 0.5
-
-	-- 			y = y - (layoutParameter.marginTop or 0)
-	-- 		elseif 3 == layoutParameter.align then
-	-- 			-- top right
-	-- 			x = parentSize.width - options.width * 0.5
-	-- 			y = parentSize.height - options.height * 0.5
-
-	-- 			x = x - (layoutParameter.marginRight or 0)
-	-- 			y = y - (layoutParameter.marginTop or 0)
-	-- 		elseif 4 == layoutParameter.align then
-	-- 			-- left center
-	-- 			x = options.width * 0.5
-	-- 			y = parentSize.height*0.5
-
-	-- 			x = x + (layoutParameter.marginLeft or 0)
-	-- 		elseif 5 == layoutParameter.align then
-	-- 			-- center
-	-- 			x = parentSize.width * 0.5
-	-- 			y = parentSize.height*0.5
-	-- 		elseif 6 == layoutParameter.align then
-	-- 			-- right center
-	-- 			x = parentSize.width - options.width * 0.5
-	-- 			y = parentSize.height*0.5
-
-	-- 			x = x - (layoutParameter.marginRight or 0)
-	-- 		elseif 7 == layoutParameter.align then
-	-- 			-- left bottom
-	-- 			x = options.width * 0.5
-	-- 			y = options.height * 0.5
-
-	-- 			x = x + (layoutParameter.marginLeft or 0)
-	-- 			y = y + (layoutParameter.marginDown or 0)
-	-- 		elseif 8 == layoutParameter.align then
-	-- 			-- bottom center
-	-- 			x = parentSize.width * 0.5
-	-- 			y = options.height * 0.5
-
-	-- 			y = y + (layoutParameter.marginDown or 0)
-	-- 		elseif 9 == layoutParameter.align then
-	-- 			-- right bottom
-	-- 			x = parentSize.width - options.width * 0.5
-	-- 			y = options.height * 0.5
-
-	-- 			x = x - (layoutParameter.marginRight or 0)
-	-- 			y = y + (layoutParameter.marginDown or 0)
-	-- 			print("CCSUILoader x:" .. x)
-	-- 		else
-	-- 			-- use origin pos
-	-- 			x = options.x
-	-- 			y = options.y
-	-- 			bUseOrigin = true
-	-- 			print("CCSUILoader - modifyLayoutChildPos_ not support align:" .. layoutParameter.align)
-	-- 		end
-
-	-- 		-- change pos on real anchor point
-	-- 		x = ((options.anchorPointX or 0.5) - 0.5)*options.width + x
-	-- 		y = ((options.anchorPointY or 0.5) - 0.5)*options.height + y
-	-- 	elseif 0 == layoutParameter.type then
-	-- 		x = options.x
-	-- 		y = options.y
-	-- 	else
-	-- 		print("CCSUILoader - modifyLayoutChildPos_ not support type:" .. layoutParameter.type)
-	-- 	end
-	-- 	options.x = x
-	-- 	options.y = y
-	-- end
 end
 
 function CCSUILoader:calcChildPosByName_(children, name, parentSize)
@@ -1049,8 +906,8 @@ function CCSUILoader:calcChildPosByName_(children, name, parentSize)
 	local options = child.options
 	local x, y
 	local bUseOrigin = false
-	local width = options.width * (options.scaleX or 1) * (options.adaptScaleX_ or 1)
-	local height = options.height * (options.scaleY or 1) * (options.adaptScaleY_ or 1)
+	local width = options.width
+	local height = options.height
 
 	layoutParameter = options.layoutParameter
 
@@ -1275,29 +1132,6 @@ function CCSUILoader:getPanelChild_(children, name)
 	end
 
 	return
-end
-
---[[--
-
-修改父结点自适应后,以百分比为大小的子结点的缩放值
-
-]]
-function CCSUILoader:modifyPanelChildAdaptScale_(parentOption, children)
-	if not parentOption
-		or not children
-		or not parentOption.adaptScreen then
-		return
-	end
-
-	local options
-	--将自适应后的父结点的缩放值传递给以百分比为大小的子结点
-	for _,v in ipairs(children) do
-		options = v.options
-		if 1 == options.sizeType then
-			options.adaptScaleX_ = parentOption.scaleX_
-			options.adaptScaleY_ = parentOption.scaleY_
-		end
-	end
 end
 
 

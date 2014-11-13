@@ -7,7 +7,7 @@ local EditBoxLite = import(".EditBoxLite")
 local eventDispatcher = cc.Director:getInstance():getEventDispatcher()
 
 local CreateProjectUI = class("CreateProjectUI", function()
-        return cc.LayerColor:create(cc.c4b(56, 56, 56, 250))
+        return display.newColorLayer(cc.c4b(56, 56, 56, 250))
     end)
 
 -- settings
@@ -160,7 +160,7 @@ function CreateProjectUI:onEnter()
             if string.len(locationEditbox:getText()) > 0 and string.len(packageEditbox:getText()) > 0 then
                 createProjectbutton:setButtonLabelString("normal", "Processing ...")
                 local t = packageEditbox:getText():splitBySep('.')
-                self.projectFolder = locationEditbox:getText() .. '/' .. t[#t]
+                self.projectFolder = locationEditbox:getText() .. device.directorySeparator .. t[#t]
 
                 local projectConfig = ProjectConfig:new()
                 projectConfig:setProjectDir(self.projectFolder)
@@ -179,6 +179,26 @@ function CreateProjectUI:onEnter()
                 end
                 local arguments = " -p " .. packageEditbox:getText() .. " -f " .. " -o " .. self.projectFolder .. screenDirection
                 local taskId = tostring(os.time())
+
+                -- local scriptPath = cc.player.quickRootPath .. "cocos new"
+
+                -- local screenDirection = "-r portrait"
+                -- if self.landscapeCheckBox:isButtonSelected() then
+                --     projectConfig:changeFrameOrientationToLandscape()
+                --     screenDirection = "-r landscape"
+                -- end
+
+                -- local cmds = {}
+                -- table.insert(cmds, "-l lua")
+                -- table.insert(cmds, "-t quick")
+                -- table.insert(cmds, "-d " .. self.projectFolder)
+                -- table.insert(cmds, "-p " .. packageEditbox:getText())
+                -- table.insert(cmds, screenDirection)
+
+                -- local arguments = table.concat(cmds, " ")
+                -- arguments = " " .. arguments
+                
+                print("Create Cmd:" .. scriptPath .. " " .. arguments)
                 local task = PlayerProtocol:getInstance():getTaskService():createTask(taskId, scriptPath, arguments)
                 eventDispatcher:addEventListenerWithFixedPriority(cc.EventListenerCustom:create(taskId,
                             function()
@@ -192,7 +212,12 @@ function CreateProjectUI:onEnter()
                                 end
                             end),
                            1)
-                task:run()
+                task:runInTerminal()
+
+                createProjectbutton:setButtonLabelString("normal", "Open ...")
+                createProjectbutton.currState = 2
+                local messageBox = PlayerProtocol:getInstance():getMessageBoxService()
+                messageBox:showMessageBox("player v3", "Please wait create success and then click Open")
             else
                 local messageBox = PlayerProtocol:getInstance():getMessageBoxService()
                 messageBox:showMessageBox("player v3", "please fill all infomation..")
